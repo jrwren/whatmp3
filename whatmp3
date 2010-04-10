@@ -97,7 +97,6 @@ sub process {
 	chop($arg) if $arg =~ m'/$';
 	push(@flac_dirs, $arg);
 }
-
 GetOptions('help' => \&help, 'verbose' => \$verbose, 'notorrent' => \$notorrent, 'zeropad', => \$zeropad, 'moveother' => \$moveother, 'output=s' => \$output, 'passkey=s' => \$passkey, 'tracker=s' => \$tracker, '<>' => \&process);
 
 $output ||= "./";
@@ -115,12 +114,10 @@ die "Need FLAC file parameter\n" unless @flac_dirs;
 
 foreach my $flac_dir (@flac_dirs) {
 	my (@files, @dirs);
-	if ($flac_dir eq '.' or './') {
+	if ($flac_dir eq '.' or $flac_dir eq './') {
 		$flac_dir = cwd;
 	}
 	find( sub { push(@files, $File::Find::name) if ($File::Find::name =~ m/\.flac$/i) }, $flac_dir);
-	
-	print "Using $flac_dir\n" if $verbose;
 	
 	foreach my $enc_option (@enc_options) {
 		my $mp3_dir = $output . basename($flac_dir) . " ($enc_option)";
