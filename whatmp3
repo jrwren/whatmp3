@@ -121,7 +121,7 @@ foreach my $flac_dir (@flac_dirs) {
 	
 	foreach my $enc_option (@enc_options) {
 		my $mp3_dir = $output . basename($flac_dir) . " ($enc_option)";
-		$mp3_dir =~ s/FLAC//ig;
+		$mp3_dir =~ s/\[?FLAC\]? ?//ig;
 		mkpath($mp3_dir);
 		
 		print "\nEncoding with $enc_option started...\n" if $verbose;
