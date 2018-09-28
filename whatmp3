@@ -33,8 +33,8 @@ zeropad = 1
 # Do you want to dither FLACs to 16/44 before encoding?
 dither = 0
 
-# Specify tracker ("http://tracker.what.cd:34000/")
-tracker = "http://tracker.what.cd:34000/"
+# https://please.passtheheadphones.me/fe387bc0950bf9b5a16385cf3115fbf4/announce
+tracker = "https://please.passtheheadphones.me/"
 
 # Specify torrent passkey
 passkey = "Linus Torvalds disapproves."
@@ -52,7 +52,7 @@ enc_options = {
 	'V2':	{'enc': 'lame',		'ext': '.mp3',	'opts': '-q 0 -V 2 --vbr-new --ignore-tag-errors --noreplaygain'},
 	'V9':	{'enc': 'lame',		'ext': '.mp3',	'opts': '-q 0 -V 9 --vbr-new --ignore-tag-errors --noreplaygain'},
 	'Q8':	{'enc': 'oggenc',	'ext': '.ogg',	'opts': '-q 8 --utf8'},
-	'AAC':	{'enc': 'neroAacEnc',	'ext': '.aac',	'opts': '-br 320000'},
+	'AAC':	{'enc': 'fdkaac',	'ext': '.m4a',	'opts': '-m 4'},
 	'ALAC':	{'enc': 'ffmpeg',	'ext': '.alac',	'opts': '-i - -acodec alac'},
 	'FLAC': {'enc': 'flac',		'ext': '.flac',	'opts': '--best'}
 }
@@ -80,12 +80,23 @@ encoders = {
 		'COMMENT':	'-c "comment=%(COMMENT)s"',
 		'regain':	'vorbisgain -qafrs "%s"/*.ogg'
 	},
+	'fdkaac': {
+		'enc':		'fdkaac %(opts)s %(tags)s -o "%(filename)s" - 2>&1',
+		'TITLE':	'--title "%(TITLE)s"',
+		'ALBUM':	'--album "%(ALBUM)s"',
+		'ARTIST':	'--artist "%(ARTIST)s"',
+		'TRACKNUMBER':	'--track "%(TRACKNUMBER)s"',
+		'GENRE':	'--genre "%(GENRE)s"',
+		'DATE':		'--date "%(DATE)s"',
+		'COMMENT':	'--comment "%(COMMENT)s"',
+		'regain':	'aacgain -q -c "%s"/*.m4a' # what is regain? JRW
+	},
 	'neroAacEnc': {
 		'enc':		'neroAacEnc %(opts)s -if - -of "%(filename)s" 2>&1 && neroAacTag %(tags)s',
 		'TITLE':	'-meta:title="%(TITLE)s"',
 		'ALBUM':	'-meta:album="%(ALBUM)s"',
 		'ARTIST':	'-meta:artist="%(ARTIST)s"',
-		'TRACKNUMBER':	'-meta:track="%(TRACK)s"',
+		'TRACKNUMBER':	'-meta:track="%(TRACKNUMBER)s"',
 		'GENRE':	'-meta:genre="%(GENRE)s"',
 		'DATE':		'-meta:year="%(DATE)s"',
 		'COMMENT':	'-meta:comment="%(COMMENT)s"',
@@ -175,7 +186,7 @@ class Transcode(threading.Thread):
 
 def make_torrent(options, target):
 	if options.verbose: print('Creating torrent...')
-	torrent_command = 'mktorrent -p -a "%s/announce" -o "%s.torrent" "%s"' % (options.tracker + options.passkey, escape_quote(os.path.join(options.torrent_dir, os.path.basename(target))), escape_quote(target))
+	torrent_command = 'mktorrent -p -s RED -a "%s/announce" -o "%s.torrent" "%s"' % (options.tracker + options.passkey, escape_quote(os.path.join(options.torrent_dir, os.path.basename(target))), escape_quote(target))
 	if options.nodate: torrent_command += ' -d'
 	if options.verbose: print(escape_backtick(torrent_command))
 	os.system(escape_backtick(torrent_command))
